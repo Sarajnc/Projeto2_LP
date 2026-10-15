@@ -11,10 +11,8 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(message)s",
 )
-
 COLUNAS = ["id", "nome", "cpf", "email", "telefone",
            "data_nascimento", "created_on", "updated_on"]
-
 
 def decorator_tempo(func):
     @functools.wraps(func)
@@ -27,14 +25,13 @@ def decorator_tempo(func):
         return resultado
     return wrapper
 
-
 def anonimizar_nome(nome):
     partes = nome.split()                                
     pos = 1 if partes[0].endswith(".") and len(partes) > 1 else 0
     palavra = partes[pos]
     partes[pos] = palavra[0] + "*" * (len(palavra) - 1)  
     return " ".join(partes)
-
+    
 def anonimizar_cpf(cpf):
     return cpf[:4] + "***.***-**"                        
 
@@ -59,7 +56,6 @@ def LGPD(registro):
         atualizado,
     )
 
-
 @decorator_tempo
 def gerar_arquivos_por_ano():
     por_ano = {}                                
@@ -76,7 +72,6 @@ def gerar_arquivos_por_ano():
             writer.writerow(COLUNAS)
             writer.writerows(registros)
 
-
 @decorator_tempo
 def gerar_arquivo_todos():
     with engine.connect() as conexao:
@@ -85,12 +80,12 @@ def gerar_arquivo_todos():
             writer = csv.writer(arquivo)
             writer.writerow(["nome", "cpf"])
             writer.writerows(resultado)
-
+            
 if __name__ == "__main__":
     with engine.connect() as conexao:
         resultado = conexao.execute(text("SELECT * FROM usuarios LIMIT 10;"))
         for registro in resultado:
             print(LGPD(registro))
-
+            
     gerar_arquivos_por_ano()    
     gerar_arquivo_todos()       
